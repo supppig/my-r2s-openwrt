@@ -15,8 +15,8 @@ jobs:
       - name: 初始化仓库
         id: init
         run: |
-          git clone https://github.com/biliwala/nanopi-openwrt.git
           echo "mydir=$(pwd)" > /tmp/conf.me
+          git clone https://github.com/biliwala/nanopi-openwrt.git
           cd nanopi-openwrt
           echo "dir=$(pwd)" >> /tmp/conf.me
           
@@ -39,12 +39,29 @@ jobs:
           . /tmp/conf.me
           cd $dir
           . patch_kernel_5.4.sh
-        
-      - name: 打包
+          
+      - name: 打补丁
+        run: |
+          . /tmp/conf.me
+          chmod 777 yamlParse
+          ./yamlParse -in ${dir}/.github/workflows/r2s_lean_minimal.yml -ex myApp.txt -out ${dir}/mods.sh
+          cd $dir
+          . mods.sh
+          
+      - name: 编译FriendlyWrt
+        run: |
+          . /tmp/conf.me
+          cd $dir
+          . 4_build_image.sh friendlywrt-rk3328 nanopi_r2s.mk
+          
+      - name: 打包固件
         id: assemble_artifact
         run: |
-          ls > /tmp/d.txt
-          release_tag="test-$(date +%Y-%m-%d-%H%M%S)"
+          . /tmp/conf.me
+          cd $dir
+          . x_assemble_artifact.sh
+          mv ./artifact.zip $mydir
+          release_tag="R2S-supppig-$(date +%Y%m%d-%H%M%S)"
           echo "##[set-output name=release_tag;]$release_tag"
           
       - name: 创建Release
@@ -54,7 +71,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.sec_token }}
         with:
           tag_name: ${{ steps.assemble_artifact.outputs.release_tag }}
-          release_name: 测试 ${{ steps.assemble_artifact.outputs.release_tag }}
+          release_name: 自动发布 ${{ steps.assemble_artifact.outputs.release_tag }}
           draft: false
           prerelease: false
 
@@ -65,10 +82,9 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.sec_token }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: /tmp/d.txt
-          asset_name: ${{ steps.assemble_artifact.outputs.release_tag }}-test.txt
-          #asset_content_type: application/zip
-          asset_content_type:	text/plain
+          asset_path: ./artifact.zip
+          asset_name: ${{ steps.assemble_artifact.outputs.release_tag }}-ROM.zip
+          asset_content_type: application/zip
           
       - name: 删除旧Releases
         uses: dev-drprasad/delete-older-releases@v0.1.0
