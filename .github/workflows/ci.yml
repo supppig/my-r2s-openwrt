@@ -12,7 +12,9 @@ on:
 
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
-
+env:
+  TZ: Asia/Shanghai
+  
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
   # This workflow contains a single job called "build"
@@ -29,7 +31,7 @@ jobs:
         id: assemble_artifact
         run: |
           ls > /tmp/d.txt
-          release_tag="test-$(date +%Y-%m-%d)"
+          release_tag="test-$(date +%Y-%m-%d-%H%M%S)"
           echo "##[set-output name=release_tag;]$release_tag"
           
       - name: 创建Release
