@@ -16,25 +16,28 @@ jobs:
         id: init
         run: |
           git clone https://github.com/biliwala/nanopi-openwrt.git
-          mydir=$(pwd)
+          echo "mydir=$(pwd)" > /tmp/conf.me
           cd nanopi-openwrt
-          dir=$(pwd)
+          echo "dir=$(pwd)" >> /tmp/conf.me
           
       - name: 初始化环境
         env:
           DEBIAN_FRONTEND: noninteractive
         run: |
-          cd ${{ steps.init.outputs.dir }}
+          . /tmp/conf.me
+          cd $dir
           . 1_initialization_environment.sh
       
       - name: 克隆源码
         run: |
-          cd ${{ steps.init.outputs.dir }}
+          . /tmp/conf.me
+          cd $dir
           . 2_clone_source.sh master-v19.07.1 rk3328
           
       - name: 内核打补丁
         run: |
-          cd ${{ steps.init.outputs.dir }}
+          . /tmp/conf.me
+          cd $dir
           . patch_kernel_5.4.sh
         
       - name: 打包
