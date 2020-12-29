@@ -1,4 +1,4 @@
-name: CI
+name: 构建自定义r2s-lean-openwrt
 
 on:
   workflow_dispatch:
@@ -19,6 +19,7 @@ jobs:
           git clone https://github.com/biliwala/nanopi-openwrt.git
           cd nanopi-openwrt
           echo "dir=$(pwd)" >> /tmp/conf.me
+          git config merge.renameLimit 999999
           
       - name: 初始化环境
         env:
@@ -88,7 +89,6 @@ jobs:
           
       - name: 删除旧Releases
         uses: dev-drprasad/delete-older-releases@v0.1.0
-        if: env.UPLOAD_RELEASE == 'true' && !cancelled()
         with:
           keep_latest: 5
           delete_tags: true
