@@ -19,6 +19,23 @@ jobs:
           mydir=$(pwd)
           cd nanopi-openwrt
           dir=$(pwd)
+          
+      - name: 初始化环境
+        env:
+          DEBIAN_FRONTEND: noninteractive
+        run: |
+          cd ${{ steps.init.outputs.dir }}
+          . 1_initialization_environment.sh
+      
+      - name: 克隆源码
+        run: |
+          cd ${{ steps.init.outputs.dir }}
+          . 2_clone_source.sh master-v19.07.1 rk3328
+          
+      - name: 内核打补丁
+        run: |
+          cd ${{ steps.init.outputs.dir }}
+          . patch_kernel_5.4.sh
         
       - name: 打包
         id: assemble_artifact
