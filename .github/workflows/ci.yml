@@ -28,7 +28,7 @@ jobs:
       - name: 打包
         id: assemble_artifact
         run: |
-          ls -l > /tmp/d.txt
+          ls > /tmp/d.txt
           release_tag="test-$(date +%Y-%m-%d)"
           echo "##[set-output name=release_tag;]$release_tag"
           
