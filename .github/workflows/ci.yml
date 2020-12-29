@@ -55,4 +55,12 @@ jobs:
           #asset_content_type: application/zip
           asset_content_type:	text/plain
           
+      - name: 删除旧Releases
+        uses: dev-drprasad/delete-older-releases@v0.1.0
+        if: env.UPLOAD_RELEASE == 'true' && !cancelled()
+        with:
+          keep_latest: 5
+          delete_tags: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.sec_token }}
           
